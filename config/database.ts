@@ -30,8 +30,13 @@ export default ({ env }) => {
         database: env('DATABASE_NAME', 'strapi'),
         user: env('DATABASE_USERNAME', 'strapi'),
         password: env('DATABASE_PASSWORD', 'strapi'),
-        ssl: env.bool('DATABASE_SSL', true) && {
-          rejectUnauthorized: env.bool('DATABASE_SSL_REJECT_UNAUTHORIZED', false),
+        ssl: env.bool('DATABASE_SSL', false) && {
+          key: env('DATABASE_SSL_KEY', undefined),
+          cert: env('DATABASE_SSL_CERT', undefined),
+          ca: env('DATABASE_SSL_CA', undefined),
+          capath: env('DATABASE_SSL_CAPATH', undefined),
+          cipher: env('DATABASE_SSL_CIPHER', undefined),
+          rejectUnauthorized: env.bool('DATABASE_SSL_REJECT_UNAUTHORIZED', true),
         },
         schema: env('DATABASE_SCHEMA', 'public'),
       },
@@ -44,18 +49,6 @@ export default ({ env }) => {
       useNullAsDefault: true,
     },
   };
-
-  // Special handling for production environment
-  if (env('NODE_ENV') === 'production' && env('DATABASE_URL')) {
-    // If DATABASE_URL is provided (by Render), use postgres
-    return {
-      connection: {
-        client: 'postgres',
-        ...connections.postgres,
-        acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
-      },
-    };
-  }
 
   return {
     connection: {
